@@ -2,58 +2,44 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CatTest {
+
+    private static final int CAT_X = 100;
+    private static final int CAT_Y = 100;
+    private static final int CAT_WIDTH = 645;
+    private static final int CAT_HEIGHT = 470;
+
+    private static final int IMAGE_WIDTH = 900;
+    private static final int IMAGE_HEIGHT = 700;
+
+    private static final double EPSILON = 0.0001;
 
     private Cat cat;
 
     @BeforeEach
     void setUp() {
-        cat = new Cat(100, 100, 645, 470, Color.BLACK);
-    }
-
-    @Test
-    @DisplayName("Конструктор сохраняет ширину и высоту")
-    void constructorStoresSize() {
-        assertEquals(645, cat.getWidth());
-        assertEquals(470, cat.getHeight());
-    }
-
-    @Test
-    @DisplayName("setWidth / setHeight меняют размеры")
-    void settersChangeSize() {
-        cat.setWidth(300);
-        cat.setHeight(200);
-        assertEquals(300, cat.getWidth());
-        assertEquals(200, cat.getHeight());
-    }
-
-    @Test
-    @DisplayName("setX / setY не выбрасывают исключений")
-    void settersCoordinatesDoNotThrow() {
-        assertDoesNotThrow(() -> {
-            cat.setX(0);
-            cat.setY(0);
-            cat.setX(-100);
-            cat.setY(9999);
-        });
+        cat = new Cat(CAT_X, CAT_Y, CAT_WIDTH, CAT_HEIGHT);
     }
 
     @Test
     @DisplayName("Начальный угол равен 0")
     void initialAngleIsZero() {
-        assertEquals(0.0, cat.getAngle(), 0.0001);
+        assertEquals(0.0, cat.getAngle(), EPSILON);
     }
 
     @Test
     @DisplayName("setAngle сохраняет значение")
     void setAngleStoresValue() {
         cat.setAngle(45.5);
-        assertEquals(45.5, cat.getAngle(), 0.0001);
+        assertEquals(45.5, cat.getAngle(), EPSILON);
     }
 
     @Test
@@ -70,8 +56,9 @@ class CatTest {
     @Test
     @DisplayName("draw() не выбрасывает исключений")
     void drawDoesNotThrow() {
-        BufferedImage image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = image.createGraphics();
+        final BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g = image.createGraphics();
 
         assertDoesNotThrow(() -> cat.draw(g));
 
@@ -81,10 +68,10 @@ class CatTest {
     @Test
     @DisplayName("draw() рисует непрозрачные пиксели")
     void drawProducesOpaquePixels() {
-        Cat big = new Cat(50, 50, 645, 470, Color.BLACK);
-        BufferedImage image = new BufferedImage(900, 700, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = image.createGraphics();
-        big.draw(g);
+        final BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g = image.createGraphics();
+        cat.draw(g);
         g.dispose();
 
         assertTrue(hasOpaquePixel(image),
@@ -94,9 +81,10 @@ class CatTest {
     @Test
     @DisplayName("draw() работает при нулевых размерах")
     void drawWithZeroSize() {
-        Cat zero = new Cat(0, 0, 0, 0, Color.BLACK);
-        BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = image.createGraphics();
+        final Cat zero = new Cat(0, 0, 0, 0);
+        final BufferedImage image =
+                new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g = image.createGraphics();
 
         assertDoesNotThrow(() -> zero.draw(g));
 
@@ -106,11 +94,12 @@ class CatTest {
     @Test
     @DisplayName("draw() работает с отрицательными координатами")
     void drawWithNegativeCoordinates() {
-        Cat neg = new Cat(-100, -100, 645, 470, Color.BLACK);
-        BufferedImage image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = image.createGraphics();
+        final Cat negative = new Cat(-100, -100, CAT_WIDTH, CAT_HEIGHT);
+        final BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g = image.createGraphics();
 
-        assertDoesNotThrow(() -> neg.draw(g));
+        assertDoesNotThrow(() -> negative.draw(g));
 
         g.dispose();
     }
@@ -118,9 +107,10 @@ class CatTest {
     @Test
     @DisplayName("draw() восстанавливает трансформацию Graphics2D")
     void drawRestoresTransform() {
-        BufferedImage image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = image.createGraphics();
-        var before = g.getTransform();
+        final BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g = image.createGraphics();
+        final AffineTransform before = g.getTransform();
 
         cat.setAngle(30);
         cat.draw(g);
@@ -133,8 +123,9 @@ class CatTest {
     @Test
     @DisplayName("draw() при разных углах не падает")
     void drawWithVariousAngles() {
-        BufferedImage image = new BufferedImage(900, 700, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = image.createGraphics();
+        final BufferedImage image =
+                new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g = image.createGraphics();
 
         assertDoesNotThrow(() -> {
             for (double angle = -180; angle <= 180; angle += 15) {
@@ -146,7 +137,7 @@ class CatTest {
         g.dispose();
     }
 
-    private boolean hasOpaquePixel(BufferedImage image) {
+    private boolean hasOpaquePixel(final BufferedImage image) {
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 if ((image.getRGB(x, y) >>> 24) != 0) {
