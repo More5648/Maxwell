@@ -218,6 +218,7 @@ public class Cat {
         g.drawLine(px(620), py(625), px(710), py(645));
         g.drawLine(px(620), py(640), px(690), py(680));
 
+        g2.setTransform(old);
     }
 
 }

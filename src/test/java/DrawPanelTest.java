@@ -2,6 +2,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,16 +33,25 @@ class DrawPanelTest {
     }
 
     @Test
-    @DisplayName("actionPerformed меняет угол кота")
-    void actionPerformedChangesAngle() {
+    @DisplayName("actionPerformed считает угол по формуле sin(ticks * 0.7) * 10")
+    void actionPerformedComputesAngleByFormula() {
         Cat cat = panel.getCat();
-        double before = cat.getAngle();
+        Timer timer = panel.getTimer();
 
-        panel.actionPerformed(new ActionEvent(panel,
+        // тик №1: ticksFromStart = 0 → sin(0) = 0
+        panel.actionPerformed(new ActionEvent(timer,
                 ActionEvent.ACTION_PERFORMED, "tick"));
+        assertEquals(0.0, cat.getAngle(), 0.0001);
 
-        double after = cat.getAngle();
-        assertNotEquals(before, after, "Угол должен измениться после тика");
+        // тик №2: ticksFromStart = 1 → sin(0.7) * 10
+        panel.actionPerformed(new ActionEvent(timer,
+                ActionEvent.ACTION_PERFORMED, "tick"));
+        assertEquals(Math.sin(1 * 0.7) * 10, cat.getAngle(), 0.0001);
+
+        // тик №3: ticksFromStart = 2 → sin(1.4) * 10
+        panel.actionPerformed(new ActionEvent(timer,
+                ActionEvent.ACTION_PERFORMED, "tick"));
+        assertEquals(Math.sin(2 * 0.7) * 10, cat.getAngle(), 0.0001);
     }
 
     @Test

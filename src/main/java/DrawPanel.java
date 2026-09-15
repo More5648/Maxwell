@@ -18,6 +18,10 @@ public class DrawPanel extends JPanel implements ActionListener {
         return this.maxwell;
     }
 
+    Timer getTimer() {
+        return this.timer;
+    }
+
     public DrawPanel(final int width, final int height, final int timerDelay) {
         this.PANEL_WIDTH = width;
         this.PANEL_HEIGHT = height;
