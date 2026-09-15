@@ -28,6 +28,7 @@ public class DrawPanel extends JPanel implements ActionListener {
         int catY = (PANEL_HEIGHT - catH) / 2;  // 90
 
         this.maxwell = new Cat(catX, catY, catW, catH, Color.BLACK);
+        new Music("maxwell.wav");
     }
 
     @Override
