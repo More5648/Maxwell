@@ -1,6 +1,6 @@
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -15,6 +15,7 @@ public class DrawPanel extends JPanel implements ActionListener {
     private final int panelHeight;
     private final Timer timer;
     private final Cat maxwell;
+    private final BackGround backGround;
     private int ticksFromStart;
 
     public DrawPanel(final int width, final int height, final int timerDelay) {
@@ -29,8 +30,11 @@ public class DrawPanel extends JPanel implements ActionListener {
         final int catHeight = (int) (this.panelHeight * CAT_SIZE_RATIO);
         final int catX = (this.panelWidth - catWidth) / 2;
         final int catY = (this.panelHeight - catHeight) / 2;
+        final int cx = getWidth()  / 2;
+        final int cy = getHeight() / 2;
 
         this.maxwell = new Cat(catX, catY, catWidth, catHeight);
+        this.backGround = new BackGround(0, 0, this.panelWidth, this.panelHeight, Color.WHITE);
 
         new Music(MUSIC_FILE);
     }
@@ -46,8 +50,11 @@ public class DrawPanel extends JPanel implements ActionListener {
     @Override
     public void paint(final Graphics gr) {
         super.paint(gr);
+        this.backGround.draw(gr);
         this.maxwell.draw(gr);
     }
+
+    private static final float HUE_SPEED = 0.1f;
 
     @Override
     public void actionPerformed(final ActionEvent e) {
@@ -55,6 +62,10 @@ public class DrawPanel extends JPanel implements ActionListener {
             final double angle = Math.sin(this.ticksFromStart * ROTATION_SPEED)
                     * ROTATION_AMPLITUDE;
             this.maxwell.setAngle(angle);
+
+            float newOffset = (this.backGround.getHueOffset() + HUE_SPEED) % 1f;
+            this.backGround.setHueOffset(newOffset);
+
             repaint();
             this.ticksFromStart++;
         }
